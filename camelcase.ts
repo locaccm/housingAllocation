@@ -3,11 +3,11 @@ const test_variable = 42;
 const testVariable = 42;
 
 const obj = {
-  test_property: "erreur" 
+  test_property: "erreur",
 };
 
 const validObj = {
-  testProperty: "valide"
+  testProperty: "valide",
 };
 
 interface BadInterface {
@@ -26,4 +26,11 @@ function goodFunctionName() {
   return "valide";
 }
 
-export { test_variable, testVariable, obj, validObj, bad_function_name, goodFunctionName };
+export {
+  test_variable,
+  testVariable,
+  obj,
+  validObj,
+  bad_function_name,
+  goodFunctionName,
+};

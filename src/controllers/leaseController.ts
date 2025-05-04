@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import * as leaseService from "../services/leaseService";
 
-// Fonction de validation des dates
 const isValidDate = (date: string) => {
   const parsedDate = new Date(date);
   return !isNaN(parsedDate.getTime());

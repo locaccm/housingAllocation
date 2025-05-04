@@ -3,10 +3,12 @@ import leaseRoutes from "./routes/leaseRoute";
 
 const app = express();
 
+app.disable("x-powered-by");
+
 app.use(express.json());
 app.use("/lease", leaseRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ?? 5000;
 
 // Use for test, unless impossible to finish the test (infinite loop)
 const server = app.listen(PORT, () => {});

@@ -16,7 +16,9 @@ export const createLease = async (data: Partial<any>) => {
       },
     });
   } catch (error) {
-    throw new Error("Failed to create lease.");
+    throw new Error(
+      `Failed to create lease. ${error instanceof Error ? error.message : error}`,
+    );
   }
 };
 
@@ -37,7 +39,9 @@ export const updateLease = async (id: number, data: Partial<any>) => {
       data: updatedData,
     });
   } catch (error) {
-    throw new Error("Failed to update lease.");
+    throw new Error(
+      `Failed to update lease. ${error instanceof Error ? error.message : error}`,
+    );
   }
 };
 
@@ -48,6 +52,8 @@ export const deleteLease = async (id: number) => {
     });
     return { message: "Lease deleted successfully" };
   } catch (error) {
-    throw new Error("Failed to delete lease.");
+    throw new Error(
+      `Failed to delete lease. ${error instanceof Error ? error.message : error}`,
+    );
   }
 };

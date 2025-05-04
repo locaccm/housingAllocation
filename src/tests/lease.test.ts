@@ -38,6 +38,17 @@ describe("Lease Controller", () => {
     expect(leaseService.createLease).toHaveBeenCalledWith(mockLease);
   });
 
+  it("should handle error when creating a lease", async () => {
+    (leaseService.createLease as jest.Mock).mockRejectedValue(
+      new Error("Creation failed"),
+    );
+
+    const response = await request(app).post("/lease").send(mockLease);
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Creation failed");
+  });
+
   it("should update a lease", async () => {
     (leaseService.updateLease as jest.Mock).mockResolvedValue(mockLease);
 
@@ -52,6 +63,19 @@ describe("Lease Controller", () => {
     });
   });
 
+  it("should handle error when updating a lease", async () => {
+    (leaseService.updateLease as jest.Mock).mockRejectedValue(
+      new Error("Update failed"),
+    );
+
+    const response = await request(app)
+      .put("/lease/1")
+      .send({ LEAN_RENT: 1000 });
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Update failed");
+  });
+
   it("should delete a lease", async () => {
     (leaseService.deleteLease as jest.Mock).mockResolvedValue(undefined);
 
@@ -59,5 +83,36 @@ describe("Lease Controller", () => {
 
     expect(response.status).toBe(204);
     expect(leaseService.deleteLease).toHaveBeenCalledWith(1);
+  });
+
+  it("should handle error when deleting a lease", async () => {
+    (leaseService.deleteLease as jest.Mock).mockRejectedValue(
+      new Error("Delete failed"),
+    );
+
+    const response = await request(app).delete("/lease/1");
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Delete failed");
+  });
+
+  it("should return error for missing required fields when creating a lease", async () => {
+    const incompleteLease = { ...mockLease, LEAN_RENT: undefined };
+
+    const response = await request(app).post("/lease").send(incompleteLease);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Rent is required");
+  });
+
+  it("should return 404 for non-existent lease when updating", async () => {
+    (leaseService.updateLease as jest.Mock).mockResolvedValue(null);
+
+    const response = await request(app)
+      .put("/lease/999")
+      .send({ LEAN_RENT: 1000 });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Lease not found");
   });
 });

@@ -21,16 +21,13 @@ describe("Lease Controller", () => {
     LEAN_RENT: 800,
     LEAN_CHARGES: 100,
     USEN_ID: 1,
-    ACCN_ID: 1
+    ACCN_ID: 1,
   };
-  
 
   it("should create a lease", async () => {
     (leaseService.createLease as jest.Mock).mockResolvedValue(mockLease);
 
-    const response = await request(app)
-      .post("/lease")
-      .send(mockLease);
+    const response = await request(app).post("/lease").send(mockLease);
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(mockLease);
@@ -46,14 +43,15 @@ describe("Lease Controller", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockLease);
-    expect(leaseService.updateLease).toHaveBeenCalledWith(1, { LEAN_RENT: 1000 });
+    expect(leaseService.updateLease).toHaveBeenCalledWith(1, {
+      LEAN_RENT: 1000,
+    });
   });
 
   it("should delete a lease", async () => {
     (leaseService.deleteLease as jest.Mock).mockResolvedValue(undefined);
 
-    const response = await request(app)
-      .delete("/lease/1");
+    const response = await request(app).delete("/lease/1");
 
     expect(response.status).toBe(204);
     expect(leaseService.deleteLease).toHaveBeenCalledWith(1);

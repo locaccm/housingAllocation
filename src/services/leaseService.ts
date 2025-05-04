@@ -44,7 +44,7 @@ export const updateLease = async (id: number, data: Partial<Lease>) => {
 export const deleteLease = async (id: number) => {
   try {
     await prisma.lease.delete({
-      where: { LEAN_ID: id },   
+      where: { LEAN_ID: id },
     });
     return { message: "Lease deleted successfully" };
   } catch (error) {

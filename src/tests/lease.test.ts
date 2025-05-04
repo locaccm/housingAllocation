@@ -87,77 +87,87 @@ describe("Lease Controller", () => {
     expect(response.body.message).toBe("Delete failed");
   });
 
-//   it("should return error when LEAN_CHARGES is missing", async () => {
-//     const leaseWithoutCharges = { ...mockLease };
-//     delete leaseWithoutCharges.LEAN_CHARGES;
-  
-//     const response = await request(app).post("/lease").send(leaseWithoutCharges);
-//     expect(response.status).toBe(400);
-//     expect(response.body.message).toBe("Charges are required");
-//   });
-  
-//   it("should return error when LEAN_RENT is null", async () => {
-//     const leaseWithNullRent = { ...mockLease, LEAN_RENT: null };
-  
-//     const response = await request(app).post("/lease").send(leaseWithNullRent);
-//     expect(response.status).toBe(400);
-//     expect(response.body.message).toBe("Rent cannot be null");
-//   });
+  it("should return error when LEAN_RENT is null", async () => {
+    const leaseWithNullRent = { ...mockLease, LEAN_RENT: null };
 
-//   it("should return error when LEAD_START is missing", async () => {
-//     const leaseWithoutStartDate = { ...mockLease };
-//     delete leaseWithoutStartDate.LEAD_START;
-  
-//     const response = await request(app).post("/lease").send(leaseWithoutStartDate);
-//     expect(response.status).toBe(400);
-//     expect(response.body.message).toBe("Invalid date format for LEAD_START");
-//   });
+    const response = await request(app).post("/lease").send(leaseWithNullRent);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Rent is required");
+  });
+
   it("should return error when LEAD_END is invalid", async () => {
     const leaseWithInvalidEndDate = { ...mockLease, LEAD_END: "invalid-date" };
-  
-    const response = await request(app).post("/lease").send(leaseWithInvalidEndDate);
+
+    const response = await request(app)
+      .post("/lease")
+      .send(leaseWithInvalidEndDate);
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid date format for LEAD_END");
   });
-//   it("should return error when LEAD_END is missing", async () => {
-//     const leaseWithoutEndDate = { ...mockLease };
-//     delete leaseWithoutEndDate.LEAD_END;
-  
-//     const response = await request(app).post("/lease").send(leaseWithoutEndDate);
-//     expect(response.status).toBe(400);
-//     expect(response.body.message).toBe("Invalid date format for LEAD_END");
-//   });
+
+  it("should return error when LEAN_CHARGES is missing", async () => {
+    const leaseWithoutCharges = { ...mockLease };
+    delete (leaseWithoutCharges as any).LEAN_CHARGES;
+
+    const response = await request(app)
+      .post("/lease")
+      .send(leaseWithoutCharges);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Charges are required");
+  });
+
+  it("should return error when LEAD_START is missing", async () => {
+    const leaseWithoutStartDate = { ...mockLease };
+    delete (leaseWithoutStartDate as any).LEAD_START;
+
+    const response = await request(app)
+      .post("/lease")
+      .send(leaseWithoutStartDate);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Invalid date format for LEAD_START");
+  });
+
+  it("should return error when LEAD_END is missing", async () => {
+    const leaseWithoutEndDate = { ...mockLease };
+    delete (leaseWithoutEndDate as any).LEAD_END;
+
+    const response = await request(app)
+      .post("/lease")
+      .send(leaseWithoutEndDate);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Invalid date format for LEAD_END");
+  });
+
   it("should return error when lease ID is invalid on update", async () => {
     const response = await request(app)
       .put("/lease/abc")
       .send({ LEAN_RENT: 1000 });
-  
+
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid lease ID");
   });
   it("should return 404 when lease to update is not found", async () => {
     (leaseService.updateLease as jest.Mock).mockResolvedValue(null);
-  
+
     const response = await request(app)
       .put("/lease/1")
       .send({ LEAN_RENT: 1000 });
-  
+
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Lease not found");
   });
   it("should return error when lease ID is invalid on delete", async () => {
     const response = await request(app).delete("/lease/abc");
-  
+
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid lease ID");
   });
   it("should return 404 when lease to delete is not found", async () => {
     (leaseService.deleteLease as jest.Mock).mockResolvedValue(null);
-  
+
     const response = await request(app).delete("/lease/1");
-  
+
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Lease not found");
   });
-              
 });

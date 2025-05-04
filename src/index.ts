@@ -1,5 +1,10 @@
 import express from "express";
 import leaseRoutes from "./routes/leaseRoute";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export default prisma;
 
 const app = express();
 

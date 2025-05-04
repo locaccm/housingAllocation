@@ -1,8 +1,6 @@
-import { Lease, PrismaClient } from "@prisma/client";
+import prisma from "../index"; 
 
-const prisma = new PrismaClient();
-
-export const createLease = async (data: Partial<Lease>) => {
+export const createLease = async (data: Partial<any>) => {
   try {
     return await prisma.lease.create({
       data: {
@@ -20,9 +18,9 @@ export const createLease = async (data: Partial<Lease>) => {
   }
 };
 
-export const updateLease = async (id: number, data: Partial<Lease>) => {
+export const updateLease = async (id: number, data: Partial<any>) => {
   try {
-    const updatedData: Partial<Lease> = {
+    const updatedData: Partial<any> = {
       LEAD_START: data.LEAD_START ? new Date(data.LEAD_START) : undefined,
       LEAD_END: data.LEAD_END ? new Date(data.LEAD_END) : undefined,
       LEAN_RENT: data.LEAN_RENT,

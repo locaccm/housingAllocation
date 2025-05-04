@@ -146,6 +146,7 @@ describe("Lease Controller", () => {
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid lease ID");
   });
+
   it("should return 404 when lease to update is not found", async () => {
     (leaseService.updateLease as jest.Mock).mockResolvedValue(null);
 
@@ -156,12 +157,14 @@ describe("Lease Controller", () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Lease not found");
   });
+
   it("should return error when lease ID is invalid on delete", async () => {
     const response = await request(app).delete("/lease/abc");
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid lease ID");
   });
+
   it("should return 404 when lease to delete is not found", async () => {
     (leaseService.deleteLease as jest.Mock).mockResolvedValue(null);
 

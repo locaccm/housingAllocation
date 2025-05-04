@@ -1,4 +1,6 @@
-import prisma from "../index"; 
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const createLease = async (data: Partial<any>) => {
   try {

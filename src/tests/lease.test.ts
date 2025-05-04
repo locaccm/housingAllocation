@@ -1,18 +1,14 @@
 import request from "supertest";
-import express from "express";
-import leaseRoutes from "../routes/leaseRoute";
+import app, { server } from "../index"; 
 import * as leaseService from "../services/leaseService";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
 jest.mock("../services/leaseService");
 
-const app = express();
-app.use(express.json());
-app.use("/lease", leaseRoutes);
 
 describe("Lease Controller", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   const mockLease = {
     LEAN_ID: 1,
     LEAD_START: "2025-05-01T00:00:00.000Z",
@@ -23,6 +19,15 @@ describe("Lease Controller", () => {
     USEN_ID: 1,
     ACCN_ID: 1,
   };
+
+  afterAll(async () => {
+    await prisma.$disconnect();  
+    server.close();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks(); 
+  });
 
   it("should create a lease", async () => {
     (leaseService.createLease as jest.Mock).mockResolvedValue(mockLease);

@@ -1,12 +1,11 @@
 import request from "supertest";
-import app, { server } from "../index"; 
+import app, { server } from "../index";
 import * as leaseService from "../services/leaseService";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 jest.mock("../services/leaseService");
-
 
 describe("Lease Controller", () => {
   const mockLease = {
@@ -21,12 +20,12 @@ describe("Lease Controller", () => {
   };
 
   afterAll(async () => {
-    await prisma.$disconnect();  
+    await prisma.$disconnect();
     server.close();
   });
 
   afterEach(() => {
-    jest.clearAllMocks(); 
+    jest.clearAllMocks();
   });
 
   it("should create a lease", async () => {

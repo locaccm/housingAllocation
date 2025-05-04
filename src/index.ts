@@ -11,5 +11,5 @@ const PORT = process.env.PORT || 5000;
 // Use for test, unless impossible to finish the test (infinite loop)
 const server = app.listen(PORT, () => {});
 
-export { server };  
+export { server };
 export default app;

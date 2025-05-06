@@ -44,11 +44,11 @@ describe("Lease Controller", () => {
     expect(response.body.message).toBe("Creation failed");
   });
 
-  it("should return error for null values in required fields", async () => {
+  it("should return error for null or required values in required fields", async () => {
     const nullLease = { ...mockLease, LEAN_RENT: null };
     const response = await request(app).post("/lease").send(nullLease);
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Rent is required");
+    expect(response.body.message).toBe("Rent is required and cannot be null");
   });
 
   it("should handle invalid date format in lease creation", async () => {
@@ -85,14 +85,6 @@ describe("Lease Controller", () => {
     const response = await request(app).delete("/lease/1");
     expect(response.status).toBe(500);
     expect(response.body.message).toBe("Delete failed");
-  });
-
-  it("should return error when LEAN_RENT is null", async () => {
-    const leaseWithNullRent = { ...mockLease, LEAN_RENT: null };
-
-    const response = await request(app).post("/lease").send(leaseWithNullRent);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Rent is required");
   });
 
   it("should return error when LEAD_END is invalid", async () => {

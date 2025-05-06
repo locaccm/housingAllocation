@@ -11,7 +11,7 @@ export const createLease = async (
   res: Response,
 ): Promise<void> => {
   try {
-    if (req.body.LEAN_RENT == null) { 
+    if (req.body.LEAN_RENT == null) {
       res.status(400).json({ message: "Rent is required and cannot be null" });
       return;
     }

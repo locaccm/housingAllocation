@@ -116,6 +116,15 @@ describe("Lease Controller", () => {
     expect(response.body.message).toBe("Charges are required");
   });
 
+  it("should return error when LEAN_CHARGES is null", async () => {
+    const leaseWithNullCharges = { ...mockLease, LEAN_CHARGES: null };
+  
+    const response = await request(app).post("/lease").send(leaseWithNullCharges);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Charges are required");
+  });
+  
+
   it("should return error when LEAD_START is missing", async () => {
     const leaseWithoutStartDate = { ...mockLease };
     delete (leaseWithoutStartDate as any).LEAD_START;

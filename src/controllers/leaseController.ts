@@ -11,16 +11,12 @@ export const createLease = async (
   res: Response,
 ): Promise<void> => {
   try {
-    if (!req.body.LEAN_RENT) {
-      res.status(400).json({ message: "Rent is required" });
+    if (req.body.LEAN_RENT == null) { 
+      res.status(400).json({ message: "Rent is required and cannot be null" });
       return;
     }
     if (!req.body.LEAN_CHARGES) {
       res.status(400).json({ message: "Charges are required" });
-      return;
-    }
-    if (req.body.LEAN_RENT === null) {
-      res.status(400).json({ message: "Rent cannot be null" });
       return;
     }
     if (!req.body.LEAD_START || !isValidDate(req.body.LEAD_START)) {

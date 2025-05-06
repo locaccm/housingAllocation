@@ -1,7 +1,7 @@
 import express from "express";
 import leaseRoutes from "./routes/leaseRoute";
 import swaggerUi from "swagger-ui-express";
-import swaggerSpec  from "./swagger"; 
+import swaggerSpec from "./swagger";
 
 const app = express();
 

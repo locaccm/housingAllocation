@@ -9,7 +9,7 @@ const options = {
       description: "API documentation for Lease Management",
     },
   },
-  apis: ["./src/routes/*.ts"], 
+  apis: ["./src/routes/*.ts"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

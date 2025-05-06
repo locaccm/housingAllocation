@@ -9,7 +9,7 @@ app.disable("x-powered-by");
 
 app.use(express.json());
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/lease-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/lease", leaseRoutes);
 

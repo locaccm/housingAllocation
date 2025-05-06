@@ -22,18 +22,31 @@ const router = Router();
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - LEAD_START
+ *               - LEAD_END
+ *               - LEAN_RENT
+ *               - LEAN_CHARGES
+ *               - USEN_ID
+ *               - ACCN_ID
  *             properties:
- *               leaseId:
- *                 type: string
- *                 description: The unique identifier of the lease
- *               startDate:
+ *               LEAD_START:
  *                 type: string
  *                 format: date
- *                 description: Lease start date
- *               endDate:
+ *               LEAD_END:
  *                 type: string
  *                 format: date
- *                 description: Lease end date
+ *               LEAN_RENT:
+ *                 type: number
+ *               LEAN_CHARGES:
+ *                 type: number
+ *               LEAD_PAYMENT:
+ *                 type: string
+ *                 format: date
+ *               USEN_ID:
+ *                 type: integer
+ *               ACCN_ID:
+ *                 type: integer
  *     responses:
  *       201:
  *         description: Lease created successfully
@@ -52,9 +65,9 @@ router.post("/", leaseController.createLease);
  *       - in: path
  *         name: id
  *         required: true
- *         description: The lease ID
+ *         description: ID of the lease to update
  *         schema:
- *           type: string
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -62,17 +75,23 @@ router.post("/", leaseController.createLease);
  *           schema:
  *             type: object
  *             properties:
- *               leaseId:
- *                 type: string
- *                 description: The unique identifier of the lease
- *               startDate:
+ *               LEAD_START:
  *                 type: string
  *                 format: date
- *                 description: Lease start date
- *               endDate:
+ *               LEAD_END:
  *                 type: string
  *                 format: date
- *                 description: Lease end date
+ *               LEAN_RENT:
+ *                 type: number
+ *               LEAN_CHARGES:
+ *                 type: number
+ *               LEAD_PAYMENT:
+ *                 type: string
+ *                 format: date
+ *               USEN_ID:
+ *                 type: integer
+ *               ACCN_ID:
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Lease updated successfully
@@ -93,11 +112,11 @@ router.put("/:id", leaseController.updateLease);
  *       - in: path
  *         name: id
  *         required: true
- *         description: The lease ID
+ *         description: ID of the lease to delete
  *         schema:
- *           type: string
+ *           type: integer
  *     responses:
- *       200:
+ *       204:
  *         description: Lease deleted successfully
  *       400:
  *         description: Bad request

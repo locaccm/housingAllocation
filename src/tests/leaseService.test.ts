@@ -4,18 +4,6 @@ import * as leaseService from "../services/leaseService";
 const prisma = new PrismaClient();
 
 describe("Lease Service", () => {
-  let createdLeaseId: number;
-
-  const leaseData = {
-    LEAD_START: new Date("2025-05-01"),
-    LEAD_END: new Date("2026-05-01"),
-    LEAD_PAYMENT: new Date("2025-05-05"),
-    LEAN_RENT: 800,
-    LEAN_CHARGES: 100,
-    USEN_ID: 1,
-    ACCN_ID: 1,
-  };
-
   afterAll(async () => {
     await prisma.lease.deleteMany();
     await prisma.$disconnect();

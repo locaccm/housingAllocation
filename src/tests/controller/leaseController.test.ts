@@ -1,11 +1,11 @@
 import request from "supertest";
-import app, { server } from "../index";
-import * as leaseService from "../services/leaseService";
+import app, { server } from "../../index";
+import * as leaseService from "../../services/leaseService";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-jest.mock("../services/leaseService");
+jest.mock("../../services/leaseService");
 
 describe("Lease Controller", () => {
   const mockLease = {
@@ -19,7 +19,12 @@ describe("Lease Controller", () => {
     ACCN_ID: 1,
   };
 
+  beforeAll(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
   afterAll(async () => {
+    (console.error as jest.Mock).mockRestore();
     await prisma.$disconnect();
     server.close();
   });

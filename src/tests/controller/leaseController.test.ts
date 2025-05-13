@@ -170,4 +170,28 @@ describe("Lease Controller", () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Lease not found");
   });
+
+  it("should return all leases", async () => {
+    const mockLeases = [mockLease];
+    (leaseService.getLease as jest.Mock).mockResolvedValue(mockLeases);
+    const response = await request(app).get("/lease");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockLeases);
+  });
+
+  it("should return 404 when no leases are found", async () => {
+    (leaseService.getLease as jest.Mock).mockResolvedValue([]);
+    const response = await request(app).get("/lease");
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("No leases found");
+  });
+
+  it("should handle error when retrieving leases", async () => {
+    (leaseService.getLease as jest.Mock).mockRejectedValue(
+      new Error("Failed to retrieve leases"),
+    );
+    const response = await request(app).get("/lease");
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Failed to retrieve leases");
+  });
 });

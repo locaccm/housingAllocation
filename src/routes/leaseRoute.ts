@@ -126,4 +126,42 @@ router.put("/:id", leaseController.updateLease);
  */
 router.delete("/:id", leaseController.deleteLease);
 
+/**
+ * @swagger
+ * /lease:
+ *   get:
+ *     summary: Retrieve all leases
+ *     tags: [Lease]
+ *     responses:
+ *       200:
+ *         description: List of leases
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   LEAD_START:
+ *                     type: string
+ *                     format: date
+ *                   LEAD_END:
+ *                     type: string
+ *                     format: date
+ *                   LEAN_RENT:
+ *                     type: number
+ *                   LEAN_CHARGES:
+ *                     type: number
+ *                   LEAD_PAYMENT:
+ *                     type: string
+ *                     format: date
+ *                   USEN_ID:
+ *                     type: integer
+ *                   ACCN_ID:
+ *                     type: integer
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/", leaseController.getLease);
+
 export default router;

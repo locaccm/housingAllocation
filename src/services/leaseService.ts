@@ -67,3 +67,13 @@ export const deleteLease = async (id: number) => {
     );
   }
 };
+
+export const getLease = async () => {
+  try {
+    return await prisma.lease.findMany();
+  } catch (error) {
+    throw new Error(
+      `Failed to retrieve leases. ${error instanceof Error ? error.message : error}`,
+    );
+  }
+};

@@ -12,7 +12,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run migrate
+RUN npm run generate
 RUN npm run build
 
 EXPOSE 3000

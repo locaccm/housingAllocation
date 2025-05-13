@@ -19,7 +19,12 @@ describe("Lease Controller", () => {
     ACCN_ID: 1,
   };
 
+  beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   afterAll(async () => {
+    (console.error as jest.Mock).mockRestore();
     await prisma.$disconnect();
     server.close();
   });

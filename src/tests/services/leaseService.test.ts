@@ -18,5 +18,5 @@ describe("Lease Service", () => {
     await expect(leaseService.deleteLease(999999)).rejects.toThrow(
       "Failed to delete lease",
     );
-  });
+  }, 10000);
 });

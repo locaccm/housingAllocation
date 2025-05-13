@@ -31,8 +31,8 @@ src/
 ├── swagger.ts 
 ├── server.ts 
 ├──tests/
-    ├── leaseController.test.ts
-    ├── leaseService.test.ts
+    ├── controllers/ 
+    ├── services/ 
 
 
 ---

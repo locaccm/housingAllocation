@@ -1,11 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import * as leaseService from "../services/leaseService";
+import * as leaseService from "../../services/leaseService";
 
 const prisma = new PrismaClient();
 
 describe("Lease Service", () => {
   afterAll(async () => {
-    await prisma.lease.deleteMany();
     await prisma.$disconnect();
   });
 

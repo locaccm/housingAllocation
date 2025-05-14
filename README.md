@@ -2,7 +2,7 @@
 
 # LocaCCM
 
-MicroService manages adding, updating and deleting leases 
+MicroService manages adding, updating, deleting and getting all leases 
 
 ## Features
 
@@ -34,9 +34,7 @@ src/
 ├── tests/
     ├── controllers/ 
     ├── services/
-
-
----
+```
 
 ## Installation
 

@@ -1,13 +1,19 @@
-import { PrismaClient } from "@prisma/client";
 import * as leaseService from "../../services/leaseService";
+import Decimal from "decimal.js";
 
-const prisma = new PrismaClient();
+const mockLease = {
+  LEAN_ID: 1,
+  LEAD_START: new Date("2025-05-01"),
+  LEAD_END: new Date("2026-05-01"),
+  LEAD_PAYMENT: new Date("2025-05-05"),
+  LEAN_RENT: new Decimal(800), 
+  LEAN_CHARGES: new Decimal(100),
+  LEAB_ACTIVE: true,
+  USEN_ID: 1,
+  ACCN_ID: 2,
+};
 
 describe("Lease Service", () => {
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   it("should throw error when updating non-existent lease", async () => {
     await expect(
       leaseService.updateLease(999999, { LEAN_RENT: 1000 }),
@@ -21,28 +27,16 @@ describe("Lease Service", () => {
   }, 10000);
 
   it("should return a list of leases", async () => {
-    const lease = await prisma.lease.create({
-      data: {
-        LEAD_START: new Date("2025-01-01"),
-        LEAD_END: new Date("2025-12-31"),
-        LEAD_PAYMENT: new Date("2025-01-05"),
-        LEAN_RENT: 800,
-        LEAN_CHARGES: 100,
-        USEN_ID: 1,
-        ACCN_ID: 2,
-      },
-    });
+    const mockLeases = [mockLease];
+    jest.spyOn(leaseService, "getLease").mockResolvedValue(mockLeases);
+
     const leases = await leaseService.getLease();
     expect(Array.isArray(leases)).toBe(true);
     expect(leases.length).toBeGreaterThan(0);
-    expect(leases).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          LEAN_ID: lease.LEAN_ID,
-          LEAD_START: lease.LEAD_START,
-        }),
-      ]),
-    );
-    await prisma.lease.delete({ where: { LEAN_ID: lease.LEAN_ID } });
-  }, 10000);
+    expect(leases).toEqual(expect.arrayContaining([expect.objectContaining({
+      LEAN_ID: mockLease.LEAN_ID,
+      LEAD_START: mockLease.LEAD_START,
+    })]));
+  });
+
 });

@@ -2,7 +2,6 @@ import request from "supertest";
 import app, { server } from "../../index";
 import * as leaseService from "../../services/leaseService";
 
-
 jest.mock("../../services/leaseService");
 
 describe("Lease Controller", () => {
@@ -190,5 +189,32 @@ describe("Lease Controller", () => {
     const response = await request(app).get("/lease");
     expect(response.status).toBe(500);
     expect(response.body.message).toBe("Failed to retrieve leases");
+  });
+
+  it("should return 404 when lease to delete is not found", async () => {
+    (leaseService.deleteLease as jest.Mock).mockResolvedValue(null);
+
+    const response = await request(app).delete(`/lease/${mockLease.LEAN_ID}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Lease not found");
+  });
+
+  it("should return 400 for invalid lease ID", async () => {
+    const response = await request(app).delete("/lease/abc");
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Invalid lease ID");
+  });
+
+  it("should return 500 on service error during delete", async () => {
+    (leaseService.deleteLease as jest.Mock).mockRejectedValue(
+      new Error("Delete failed"),
+    );
+
+    const response = await request(app).delete(`/lease/${mockLease.LEAN_ID}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Delete failed");
   });
 });

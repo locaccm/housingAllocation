@@ -6,7 +6,7 @@ const mockLease = {
   LEAD_START: new Date("2025-05-01"),
   LEAD_END: new Date("2026-05-01"),
   LEAD_PAYMENT: new Date("2025-05-05"),
-  LEAN_RENT: new Decimal(800), 
+  LEAN_RENT: new Decimal(800),
   LEAN_CHARGES: new Decimal(100),
   LEAB_ACTIVE: true,
   USEN_ID: 1,
@@ -33,10 +33,22 @@ describe("Lease Service", () => {
     const leases = await leaseService.getLease();
     expect(Array.isArray(leases)).toBe(true);
     expect(leases.length).toBeGreaterThan(0);
-    expect(leases).toEqual(expect.arrayContaining([expect.objectContaining({
-      LEAN_ID: mockLease.LEAN_ID,
-      LEAD_START: mockLease.LEAD_START,
-    })]));
+    expect(leases).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          LEAN_ID: mockLease.LEAN_ID,
+          LEAD_START: mockLease.LEAD_START,
+        }),
+      ]),
+    );
   });
+  it("should throw error when deleting a non-existent lease", async () => {
+    jest
+      .spyOn(leaseService, "deleteLease")
+      .mockRejectedValue(new Error("Failed to delete lease"));
 
+    await expect(leaseService.deleteLease(999999)).rejects.toThrow(
+      "Failed to delete lease",
+    );
+  });
 });

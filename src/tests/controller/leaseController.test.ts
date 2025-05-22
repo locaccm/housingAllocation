@@ -1,220 +1,268 @@
-import request from "supertest";
-import app, { server } from "../../index";
 import * as leaseService from "../../services/leaseService";
+import prisma from "../../prisma/client";
 
-jest.mock("../../services/leaseService");
+jest.mock("../../prisma/client", () => ({
+  __esModule: true,
+  default: {
+    lease: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    accommodation: {
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+    user: {
+      findUnique: jest.fn(),
+    },
+  },
+}));
 
-describe("Lease Controller", () => {
-  const mockLease = {
-    LEAN_ID: 1,
-    LEAD_START: "2025-05-01T00:00:00.000Z",
-    LEAD_END: "2026-05-01T00:00:00.000Z",
-    LEAD_PAYMENT: "2025-05-05T00:00:00.000Z",
-    LEAN_RENT: 800,
-    LEAN_CHARGES: 100,
-    USEN_ID: 1,
-    ACCN_ID: 1,
-  };
-
-  beforeAll(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterAll(async () => {
-    (console.error as jest.Mock).mockRestore();
-    server.close();
-  });
-
-  afterEach(() => {
+describe("Lease Service", () => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should create a lease", async () => {
-    (leaseService.createLease as jest.Mock).mockResolvedValue(mockLease);
-    const response = await request(app).post("/lease").send(mockLease);
-    expect(response.status).toBe(201);
-    expect(response.body).toEqual(mockLease);
-  });
-
-  it("should handle error when creating a lease", async () => {
-    (leaseService.createLease as jest.Mock).mockRejectedValue(
-      new Error("Creation failed"),
+  it("should throw if USEN_ID or ACCN_ID missing", async () => {
+    await expect(leaseService.createLease({})).rejects.toThrow(
+      "USEN_ID and ACCN_ID are required",
     );
-    const response = await request(app).post("/lease").send(mockLease);
-    expect(response.status).toBe(500);
-    expect(response.body.message).toBe("Creation failed");
   });
 
-  it("should return error for null or required values in required fields", async () => {
-    const nullLease = { ...mockLease, LEAN_RENT: null };
-    const response = await request(app).post("/lease").send(nullLease);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Rent is required and cannot be null");
+  it("should throw if accommodation not found", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(
+      leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
+    ).rejects.toThrow("Accommodation not found");
   });
 
-  it("should handle invalid date format in lease creation", async () => {
-    const invalidDateLease = { ...mockLease, LEAD_START: "invalid-date" };
-    const response = await request(app).post("/lease").send(invalidDateLease);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid date format for LEAD_START");
+  it("should throw if user is not owner of accommodation", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
+      USEN_ID: 99,
+      leases: [],
+      owner: {},
+    });
+    await expect(
+      leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
+    ).rejects.toThrow("You are not the owner of this accommodation");
   });
 
-  it("should update a lease", async () => {
-    (leaseService.updateLease as jest.Mock).mockResolvedValue(mockLease);
-    const response = await request(app)
-      .put("/lease/1")
-      .send({ LEAN_RENT: 1000 });
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockLease);
+  it("should throw if accommodation already has active lease", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
+      USEN_ID: 1,
+      leases: [],
+      owner: {},
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue({});
+    await expect(
+      leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
+    ).rejects.toThrow("Accommodation already has an active lease");
   });
 
-  it("should handle error when updating a lease", async () => {
-    (leaseService.updateLease as jest.Mock).mockRejectedValue(
-      new Error("Update failed"),
-    );
-    const response = await request(app)
-      .put("/lease/1")
-      .send({ LEAN_RENT: 1000 });
-    expect(response.status).toBe(500);
-    expect(response.body.message).toBe("Update failed");
+  it("should throw if tenant is invalid or not tenant type", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
+      USEN_ID: 1,
+      leases: [],
+      owner: {},
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(
+      leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
+    ).rejects.toThrow("Tenant not valid or not of type 'tenant'");
   });
 
-  it("should handle error when deleting a lease", async () => {
-    (leaseService.deleteLease as jest.Mock).mockRejectedValue(
-      new Error("Delete failed"),
-    );
-    const response = await request(app).delete("/lease/1");
-    expect(response.status).toBe(500);
-    expect(response.body.message).toBe("Delete failed");
+  it("should throw if tenant already has active lease", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
+      USEN_ID: 1,
+      leases: [],
+      owner: {},
+    });
+    (prisma.lease.findFirst as jest.Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({});
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      USEC_TYPE: "tenant",
+    });
+    await expect(
+      leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
+    ).rejects.toThrow("Tenant already has an active lease");
   });
 
-  it("should return error when LEAD_END is invalid", async () => {
-    const leaseWithInvalidEndDate = { ...mockLease, LEAD_END: "invalid-date" };
+  it("should create lease successfully", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
+      USEN_ID: 1,
+      leases: [],
+      owner: {},
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      USEC_TYPE: "tenant",
+    });
+    (prisma.lease.create as jest.Mock).mockResolvedValue({ LEAN_ID: 123 });
+    (prisma.accommodation.update as jest.Mock).mockResolvedValue({});
 
-    const response = await request(app)
-      .post("/lease")
-      .send(leaseWithInvalidEndDate);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid date format for LEAD_END");
+    const lease = await leaseService.createLease({
+      USEN_ID: 1,
+      ACCN_ID: 1,
+      LEAD_START: new Date(),
+      LEAD_END: new Date(),
+      LEAN_RENT: 100,
+      LEAN_CHARGES: 50,
+    });
+
+    expect(lease).toEqual({ LEAN_ID: 123 });
   });
 
-  it("should return error when LEAN_CHARGES is missing", async () => {
-    const leaseWithoutCharges = { ...mockLease };
-    delete (leaseWithoutCharges as any).LEAN_CHARGES;
-
-    const response = await request(app)
-      .post("/lease")
-      .send(leaseWithoutCharges);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Charges are required");
-  });
-
-  it("should return error when LEAD_START is missing", async () => {
-    const leaseWithoutStartDate = { ...mockLease };
-    delete (leaseWithoutStartDate as any).LEAD_START;
-
-    const response = await request(app)
-      .post("/lease")
-      .send(leaseWithoutStartDate);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid date format for LEAD_START");
-  });
-
-  it("should return error when LEAD_END is missing", async () => {
-    const leaseWithoutEndDate = { ...mockLease };
-    delete (leaseWithoutEndDate as any).LEAD_END;
-
-    const response = await request(app)
-      .post("/lease")
-      .send(leaseWithoutEndDate);
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid date format for LEAD_END");
-  });
-
-  it("should return error when lease ID is invalid on update", async () => {
-    const response = await request(app)
-      .put("/lease/abc")
-      .send({ LEAN_RENT: 1000 });
-
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid lease ID");
-  });
-
-  it("should return 404 when lease to update is not found", async () => {
-    (leaseService.updateLease as jest.Mock).mockResolvedValue(null);
-
-    const response = await request(app)
-      .put("/lease/1")
-      .send({ LEAN_RENT: 1000 });
-
-    expect(response.status).toBe(404);
-    expect(response.body.message).toBe("Lease not found");
-  });
-
-  it("should return error when lease ID is invalid on delete", async () => {
-    const response = await request(app).delete("/lease/abc");
-
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid lease ID");
-  });
-
-  it("should return 404 when lease to delete is not found", async () => {
-    (leaseService.deleteLease as jest.Mock).mockResolvedValue(null);
-
-    const response = await request(app).delete("/lease/1");
-
-    expect(response.status).toBe(404);
-    expect(response.body.message).toBe("Lease not found");
-  });
-
-  it("should return all leases", async () => {
-    const mockLeases = [mockLease];
-    (leaseService.getLease as jest.Mock).mockResolvedValue(mockLeases);
-    const response = await request(app).get("/lease");
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockLeases);
-  });
-
-  it("should return 404 when no leases are found", async () => {
-    (leaseService.getLease as jest.Mock).mockResolvedValue([]);
-    const response = await request(app).get("/lease");
-    expect(response.status).toBe(404);
-    expect(response.body.message).toBe("No leases found");
-  });
-
-  it("should handle error when retrieving leases", async () => {
-    (leaseService.getLease as jest.Mock).mockRejectedValue(
-      new Error("Failed to retrieve leases"),
-    );
-    const response = await request(app).get("/lease");
-    expect(response.status).toBe(500);
-    expect(response.body.message).toBe("Failed to retrieve leases");
-  });
-
-  it("should return 404 when lease to delete is not found", async () => {
-    (leaseService.deleteLease as jest.Mock).mockResolvedValue(null);
-
-    const response = await request(app).delete(`/lease/${mockLease.LEAN_ID}`);
-
-    expect(response.status).toBe(404);
-    expect(response.body.message).toBe("Lease not found");
-  });
-
-  it("should return 400 for invalid lease ID", async () => {
-    const response = await request(app).delete("/lease/abc");
-
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe("Invalid lease ID");
-  });
-
-  it("should return 500 on service error during delete", async () => {
-    (leaseService.deleteLease as jest.Mock).mockRejectedValue(
-      new Error("Delete failed"),
+  it("should throw if createLease prisma.create fails", async () => {
+    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
+      USEN_ID: 1,
+      leases: [],
+      owner: {},
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      USEC_TYPE: "tenant",
+    });
+    (prisma.lease.create as jest.Mock).mockRejectedValue(
+      new Error("DB failure"),
     );
 
-    const response = await request(app).delete(`/lease/${mockLease.LEAN_ID}`);
+    await expect(
+      leaseService.createLease({
+        USEN_ID: 1,
+        ACCN_ID: 1,
+        LEAD_START: new Date(),
+        LEAD_END: new Date(),
+        LEAN_RENT: 100,
+        LEAN_CHARGES: 50,
+      }),
+    ).rejects.toThrow(/Failed to create lease/);
+  });
 
-    expect(response.status).toBe(500);
-    expect(response.body.message).toBe("Delete failed");
+  it("should throw if lease to update not found", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(leaseService.updateLease(999, {})).rejects.toThrow(
+      "Lease not found",
+    );
+  });
+
+  it("should throw if tenant invalid on update", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(leaseService.updateLease(1, { USEN_ID: 1 })).rejects.toThrow(
+      "Tenant not valid or not of type 'tenant'",
+    );
+  });
+
+  it("should throw if tenant has active lease on update", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      USEC_TYPE: "tenant",
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue({ LEAN_ID: 2 });
+    await expect(leaseService.updateLease(1, { USEN_ID: 1 })).rejects.toThrow(
+      "Tenant already has an active lease",
+    );
+  });
+
+  it("should update lease successfully", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      USEC_TYPE: "tenant",
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.lease.update as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
+
+    const updated = await leaseService.updateLease(1, {
+      LEAN_RENT: 150,
+      USEN_ID: 1,
+    });
+    expect(updated).toEqual({ LEAN_ID: 1 });
+  });
+
+  it("should throw if updateLease prisma.update fails", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      USEC_TYPE: "tenant",
+    });
+    (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.lease.update as jest.Mock).mockRejectedValue(
+      new Error("DB update failure"),
+    );
+
+    await expect(
+      leaseService.updateLease(1, { LEAN_RENT: 150 }),
+    ).rejects.toThrow(/Failed to update lease/);
+  });
+
+  it("should throw if lease to delete not found", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(leaseService.deleteLease(999)).rejects.toThrow(
+      "Lease not found",
+    );
+  });
+
+  it("should delete lease and release accommodation", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({
+      LEAN_ID: 1,
+      ACCN_ID: 10,
+    });
+    (prisma.lease.delete as jest.Mock).mockResolvedValue({});
+    (prisma.accommodation.update as jest.Mock).mockResolvedValue({});
+
+    const result = await leaseService.deleteLease(1);
+    expect(prisma.lease.delete).toHaveBeenCalledWith({ where: { LEAN_ID: 1 } });
+    expect(prisma.accommodation.update).toHaveBeenCalledWith({
+      where: { ACCN_ID: 10 },
+      data: { ACCB_AVAILABLE: true, USEN_ID: null },
+    });
+    expect(result).toEqual({
+      message: "Lease deleted and accommodation released",
+    });
+  });
+
+  it("should delete lease without accommodation update if no ACCN_ID", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
+    (prisma.lease.delete as jest.Mock).mockResolvedValue({});
+
+    const result = await leaseService.deleteLease(1);
+    expect(prisma.accommodation.update).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      message: "Lease deleted and accommodation released",
+    });
+  });
+
+  it("should throw if deleteLease prisma.delete fails", async () => {
+    (prisma.lease.findUnique as jest.Mock).mockResolvedValue({
+      LEAN_ID: 1,
+      ACCN_ID: 10,
+    });
+    (prisma.lease.delete as jest.Mock).mockRejectedValue(
+      new Error("DB delete failure"),
+    );
+
+    await expect(leaseService.deleteLease(1)).rejects.toThrow(
+      /Failed to delete lease/,
+    );
+  });
+
+  it("should get leases successfully", async () => {
+    (prisma.lease.findMany as jest.Mock).mockResolvedValue([{ LEAN_ID: 1 }]);
+    const leases = await leaseService.getLease();
+    expect(leases).toEqual([{ LEAN_ID: 1 }]);
+  });
+
+  it("should throw if getLease prisma.findMany fails", async () => {
+    (prisma.lease.findMany as jest.Mock).mockRejectedValue(
+      new Error("DB findMany failure"),
+    );
+    await expect(leaseService.getLease()).rejects.toThrow(
+      /Failed to retrieve leases/,
+    );
   });
 });

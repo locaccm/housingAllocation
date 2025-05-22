@@ -1,5 +1,5 @@
 node_modules/
 .env
-prisma/migrations
+src/prisma/migrations
 coverage/
 *.lcov

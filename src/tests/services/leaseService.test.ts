@@ -16,8 +16,8 @@ const mockLease = {
 
 describe("Lease Service", () => {
   afterAll(async () => {
-  await prisma.$disconnect();
-});
+    await prisma.$disconnect();
+  });
   it("should throw error when updating non-existent lease", async () => {
     await expect(
       leaseService.updateLease(999999, { LEAN_RENT: 1000 }),

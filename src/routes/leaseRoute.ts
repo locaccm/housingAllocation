@@ -1,6 +1,7 @@
 /* eslint-disable jsdoc/check-tag-names */
 import { Router } from "express";
 import * as leaseController from "../controllers/leaseController";
+import { requirePermission } from "../middlewares/permission";
 
 /**
  * @swagger
@@ -54,7 +55,11 @@ const router = Router();
  *       400:
  *         description: Bad request
  */
-router.post("/", leaseController.createLease);
+router.post(
+  "/",
+  requirePermission("addTenantWithHousing"),
+  leaseController.createLease,
+);
 
 /**
  * @swagger
@@ -101,7 +106,11 @@ router.post("/", leaseController.createLease);
  *       404:
  *         description: Lease not found
  */
-router.put("/:id", leaseController.updateLease);
+router.put(
+  "/:id",
+  requirePermission("updateTenantWithHousing"),
+  leaseController.updateLease,
+);
 
 /**
  * @swagger
@@ -124,7 +133,11 @@ router.put("/:id", leaseController.updateLease);
  *       404:
  *         description: Lease not found
  */
-router.delete("/:id", leaseController.deleteLease);
+router.delete(
+  "/:id",
+  requirePermission("deleteTenantWithHousing"),
+  leaseController.deleteLease,
+);
 
 /**
  * @swagger
@@ -162,6 +175,6 @@ router.delete("/:id", leaseController.deleteLease);
  *       500:
  *         description: Internal server error
  */
-router.get("/", leaseController.getLease);
+router.get("/", requirePermission("getTenants"), leaseController.getLease);
 
 export default router;

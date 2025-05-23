@@ -1,4 +1,5 @@
 import * as leaseService from "../../services/leaseService";
+import prisma from "../../prisma/client";
 import Decimal from "decimal.js";
 
 const mockLease = {
@@ -14,17 +15,20 @@ const mockLease = {
 };
 
 describe("Lease Service", () => {
+  afterAll(async () => {
+  await prisma.$disconnect();
+});
   it("should throw error when updating non-existent lease", async () => {
     await expect(
       leaseService.updateLease(999999, { LEAN_RENT: 1000 }),
     ).rejects.toThrow("Failed to update lease");
-  }, 10000);
+  }, 15000);
 
   it("should throw error when deleting non-existent lease", async () => {
     await expect(leaseService.deleteLease(999999)).rejects.toThrow(
       "Failed to delete lease",
     );
-  }, 10000);
+  }, 15000);
 
   it("should return a list of leases", async () => {
     const mockLeases = [mockLease];

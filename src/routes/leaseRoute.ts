@@ -1,7 +1,7 @@
 /* eslint-disable jsdoc/check-tag-names */
 import { Router } from "express";
 import * as leaseController from "../controllers/leaseController";
-import { requirePermission } from "../middlewares/permission";
+import { requirePermission } from "../middlewares/requirePermission";
 
 /**
  * @swagger

@@ -2,7 +2,7 @@ import request from "supertest";
 import prisma from "../../prisma/client";
 import app from "../../index";
 
-jest.mock("../../middlewares/permission", () => ({
+jest.mock("../../middlewares/requirePermission", () => ({
   requirePermission: () => (req: any, res: any, next: any) => {
     req.user = { USEN_ID: 1, role: "owner" };
     next();

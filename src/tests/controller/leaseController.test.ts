@@ -1,4 +1,5 @@
 import * as leaseService from "../../services/leaseService";
+import * as leaseController from "../../controllers/leaseController";
 import prisma from "../../prisma/client";
 
 jest.mock("../../prisma/client", () => ({
@@ -264,5 +265,100 @@ describe("Lease Service", () => {
     await expect(leaseService.getLease()).rejects.toThrow(
       /Failed to retrieve leases/,
     );
+  });
+});
+
+describe("leaseController.createLease validation", () => {
+  const mockStatus = jest.fn().mockReturnThis();
+  const mockJson = jest.fn();
+
+  beforeEach(() => {
+    mockStatus.mockClear();
+    mockJson.mockClear();
+  });
+
+  it("should return 400 if LEAN_CHARGES is missing or falsy", async () => {
+    const req = {
+      body: {
+        LEAN_CHARGES: 0, // falsy
+        LEAN_RENT: 100,
+        LEAD_START: new Date().toISOString(),
+        LEAD_END: new Date().toISOString(),
+      },
+    };
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.createLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({ message: "Charges are required" });
+  });
+
+  it("should return 400 if LEAD_START is missing", async () => {
+    const req = {
+      body: {
+        LEAN_CHARGES: 50,
+        LEAN_RENT: 100,
+        LEAD_START: null,
+        LEAD_END: new Date().toISOString(),
+      },
+    };
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.createLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_START" });
+  });
+
+  it("should return 400 if LEAD_START is invalid date", async () => {
+    const req = {
+      body: {
+        LEAN_CHARGES: 50,
+        LEAN_RENT: 100,
+        LEAD_START: "not-a-date",
+        LEAD_END: new Date().toISOString(),
+      },
+    };
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.createLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_START" });
+  });
+
+  it("should return 400 if LEAD_END is missing", async () => {
+    const req = {
+      body: {
+        LEAN_CHARGES: 50,
+        LEAN_RENT: 100,
+        LEAD_START: new Date().toISOString(),
+        LEAD_END: null,
+      },
+    };
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.createLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_END" });
+  });
+
+  it("should return 400 if LEAD_END is invalid date", async () => {
+    const req = {
+      body: {
+        LEAN_CHARGES: 50,
+        LEAN_RENT: 100,
+        LEAD_START: new Date().toISOString(),
+        LEAD_END: "invalid-date",
+      },
+    };
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.createLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_END" });
   });
 });

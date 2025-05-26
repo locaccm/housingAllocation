@@ -84,3 +84,21 @@ export const deleteLease = async (
     res.status(500).json({ message: "Delete failed", error: error.message });
   }
 };
+
+export const getLease = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const leases = await leaseService.getLease();
+
+    if (!leases || leases.length === 0) {
+      res.status(404).json({ message: "No leases found" });
+      return;
+    }
+
+    res.status(200).json(leases);
+  } catch (error: any) {
+    console.error("Error retrieving leases:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to retrieve leases", error: error.message });
+  }
+};

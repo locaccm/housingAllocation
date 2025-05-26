@@ -398,4 +398,20 @@ describe("leaseController.createLease validation", () => {
       error: "DB error",
     });
   });
+
+  it("should return 400 if lease ID is invalid", async () => {
+    const req: any = {
+      params: { id: "abc" },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await leaseController.deleteLease(req, res as any);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid lease ID" });
+  });
 });

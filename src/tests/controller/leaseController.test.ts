@@ -308,7 +308,9 @@ describe("leaseController.createLease validation", () => {
     await leaseController.createLease(req as any, res as any);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
-    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_START" });
+    expect(mockJson).toHaveBeenCalledWith({
+      message: "Invalid date format for LEAD_START",
+    });
   });
 
   it("should return 400 if LEAD_START is invalid date", async () => {
@@ -325,7 +327,9 @@ describe("leaseController.createLease validation", () => {
     await leaseController.createLease(req as any, res as any);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
-    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_START" });
+    expect(mockJson).toHaveBeenCalledWith({
+      message: "Invalid date format for LEAD_START",
+    });
   });
 
   it("should return 400 if LEAD_END is missing", async () => {
@@ -342,7 +346,9 @@ describe("leaseController.createLease validation", () => {
     await leaseController.createLease(req as any, res as any);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
-    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_END" });
+    expect(mockJson).toHaveBeenCalledWith({
+      message: "Invalid date format for LEAD_END",
+    });
   });
 
   it("should return 400 if LEAD_END is invalid date", async () => {
@@ -359,6 +365,37 @@ describe("leaseController.createLease validation", () => {
     await leaseController.createLease(req as any, res as any);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
-    expect(mockJson).toHaveBeenCalledWith({ message: "Invalid date format for LEAD_END" });
+    expect(mockJson).toHaveBeenCalledWith({
+      message: "Invalid date format for LEAD_END",
+    });
+  });
+
+  it("should return 404 if no leases found", async () => {
+    jest.spyOn(leaseService, "getLease").mockResolvedValue([]);
+    const req = {};
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.getLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(404);
+    expect(mockJson).toHaveBeenCalledWith({ message: "No leases found" });
+  });
+
+  it("should return 500 on service error", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+
+    jest
+      .spyOn(leaseService, "getLease")
+      .mockRejectedValue(new Error("DB error"));
+    const req = {};
+    const res = { status: mockStatus, json: mockJson };
+
+    await leaseController.getLease(req as any, res as any);
+
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      message: "Failed to retrieve leases",
+      error: "DB error",
+    });
   });
 });

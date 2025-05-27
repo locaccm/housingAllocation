@@ -81,12 +81,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
-            -t housingallocation-service:latest .
+            --build-arg DATABASE_URL=${{ secrets.DATABASE_URL_PROD }} \
+            --build-arg AUTH_SERVICE_URL=${{ secrets.AUTH_SERVICE_URL }} \
+            -t authentication:latest .
 
       - name: Tag & Push to Artifact Registry
         run: |
-          docker tag housingallocation-service:latest europe-west1-docker.pkg.dev/intricate-pad-455413-f7/locaccm-repo-docker/housingallocation-service:latest
+          docker tag authentication:latest europe-west1-docker.pkg.dev/intricate-pad-455413-f7/locaccm-repo-docker/housingallocation-service:latest
           docker push europe-west1-docker.pkg.dev/intricate-pad-455413-f7/locaccm-repo-docker/housingallocation-service:latest
-
-

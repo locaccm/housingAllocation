@@ -81,8 +81,8 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --build-arg DATABASE_URL=${{ secrets.DATABASE_URL_PROD }} \
-            --build-arg AUTH_SERVICE_URL=${{ secrets.AUTH_SERVICE_URL }} \
+            --build-arg DATABASE_URL="${{ secrets.DATABASE_URL_PROD }}" \
+            --build-arg AUTH_SERVICE_URL="${{ secrets.AUTH_SERVICE_URL }}" \
             -t authentication:latest .
 
       - name: Tag & Push to Artifact Registry

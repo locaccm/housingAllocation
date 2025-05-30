@@ -50,8 +50,8 @@ export const createLease = async (data: Partial<LeaseData>) => {
   const tenant = await prisma.user.findUnique({
     where: { USEN_ID: data.USEN_ID },
   });
-  if (!tenant || tenant.USEC_TYPE !== "tenant") {
-    throw new Error("Tenant not valid or not of type 'tenant'");
+  if (!tenant || tenant.USEC_TYPE !== "TENANT") {
+    throw new Error("Tenant not valid or not of type 'TENANT'");
   }
 
   const tenantHasActiveLease = await prisma.lease.findFirst({
@@ -105,8 +105,8 @@ export const updateLease = async (id: number, data: Partial<LeaseData>) => {
       const tenant = await prisma.user.findUnique({
         where: { USEN_ID: data.USEN_ID },
       });
-      if (!tenant || tenant.USEC_TYPE !== "tenant") {
-        throw new Error("Tenant not valid or not of type 'tenant'");
+      if (!tenant || tenant.USEC_TYPE !== "TENANT") {
+        throw new Error("Tenant not valid or not of type 'TENANT'");
       }
 
       const tenantHasActiveLease = await prisma.lease.findFirst({

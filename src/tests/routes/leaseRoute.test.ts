@@ -39,7 +39,7 @@ describe("Lease routes", () => {
     });
     (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     (prisma.lease.create as jest.Mock).mockResolvedValue({
       LEAN_ID: 123,

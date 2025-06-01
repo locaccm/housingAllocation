@@ -4,6 +4,7 @@ module "service_account_housingallocation-service" {
   display_name = "Housing Allocation Service Account"
   project_id   = "intricate-pad-455413-f7"
   roles        = [
-    "roles/cloudsql.client"
+    "roles/cloudsql.client",
+    "roles/secretmanager.secretAccessor"
   ]
 }

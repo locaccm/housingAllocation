@@ -2,8 +2,11 @@ import express from "express";
 import leaseRoutes from "./routes/leaseRoute";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
+import cors from "cors";
 
 const app = express();
+
+app.use(cors()); // NOSONAR
 
 app.disable("x-powered-by");
 

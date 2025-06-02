@@ -74,7 +74,7 @@ describe("Lease Service", () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
     await expect(
       leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
-    ).rejects.toThrow("Tenant not valid or not of type 'tenant'");
+    ).rejects.toThrow("Tenant not valid or not of type 'TENANT'");
   });
 
   it("should throw if tenant already has active lease", async () => {
@@ -87,7 +87,7 @@ describe("Lease Service", () => {
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce({});
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     await expect(
       leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
@@ -102,7 +102,7 @@ describe("Lease Service", () => {
     });
     (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     (prisma.lease.create as jest.Mock).mockResolvedValue({ LEAN_ID: 123 });
     (prisma.accommodation.update as jest.Mock).mockResolvedValue({});
@@ -127,7 +127,7 @@ describe("Lease Service", () => {
     });
     (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     (prisma.lease.create as jest.Mock).mockRejectedValue(
       new Error("DB failure"),
@@ -156,14 +156,14 @@ describe("Lease Service", () => {
     (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
     await expect(leaseService.updateLease(1, { USEN_ID: 1 })).rejects.toThrow(
-      "Tenant not valid or not of type 'tenant'",
+      "Tenant not valid or not of type 'TENANT'",
     );
   });
 
   it("should throw if tenant has active lease on update", async () => {
     (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     (prisma.lease.findFirst as jest.Mock).mockResolvedValue({ LEAN_ID: 2 });
     await expect(leaseService.updateLease(1, { USEN_ID: 1 })).rejects.toThrow(
@@ -174,7 +174,7 @@ describe("Lease Service", () => {
   it("should update lease successfully", async () => {
     (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.lease.update as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
@@ -189,7 +189,7 @@ describe("Lease Service", () => {
   it("should throw if updateLease prisma.update fails", async () => {
     (prisma.lease.findUnique as jest.Mock).mockResolvedValue({ LEAN_ID: 1 });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      USEC_TYPE: "tenant",
+      USEC_TYPE: "TENANT",
     });
     (prisma.lease.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.lease.update as jest.Mock).mockRejectedValue(

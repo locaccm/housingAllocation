@@ -13,7 +13,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^5.7.3",
-    "undici-types": "^6.20.0"
+    "undici-types": "^6.20.0",
+    "build": "tsc"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"

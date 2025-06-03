@@ -13,8 +13,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "typescript": "^5.7.3",
-    "undici-types": "^6.20.0",
-    "build": "tsc"
+    "undici-types": "^6.20.0"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"
@@ -23,7 +22,8 @@
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "test": "npx prisma generate && jest --coverage --coverageReporters=lcov",
     "dbpull": "npx prisma db pull",
-    "generate": "npx prisma generate"
+    "generate": "npx prisma generate",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

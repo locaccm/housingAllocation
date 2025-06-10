@@ -50,7 +50,7 @@ describe("Middleware - requirePermission", () => {
 
     mockedAxios.post.mockResolvedValue({
       data: {},
-      status: 201,
+      status: 200,
       statusText: "Created",
       headers: {},
       config: {

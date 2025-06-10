@@ -1,7 +1,8 @@
 /* eslint-disable jsdoc/check-tag-names */
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import * as leaseController from "../controllers/leaseController";
 import { requirePermission } from "../middlewares/requirePermission";
+import prisma from "../prisma/client";
 
 /**
  * @swagger
@@ -175,6 +176,65 @@ router.delete(
  *       500:
  *         description: Internal server error
  */
-router.get("/", requirePermission("getTenants"), leaseController.getLease);
+
+router.get(
+  "/",
+  requirePermission("getLease"),
+  async (req: Request, res: Response) => {
+    const { userId } = req.query;
+
+    if (!userId || Array.isArray(userId)) {
+      res.status(400).json({ error: "Missing or invalid userId" });
+      return;
+    }
+
+    const userIdNumber = Number(userId);
+    if (isNaN(userIdNumber)) {
+      res.status(400).json({ error: "Invalid userId format" });
+      return;
+    }
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { USEN_ID: userIdNumber },
+      });
+
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+
+      if (user.USEC_TYPE === "TENANT") {
+        const leases = await prisma.lease.findMany({
+          where: { USEN_ID: user.USEN_ID },
+        });
+        res.status(200).json(leases);
+        return;
+      }
+
+      if (user.USEC_TYPE === "OWNER") {
+        const accommodations = await prisma.accommodation.findMany({
+          where: { USEN_ID: user.USEN_ID },
+          select: { ACCN_ID: true },
+        });
+
+        const accnIds = accommodations.map((acc) => acc.ACCN_ID);
+
+        const leases = await prisma.lease.findMany({
+          where: { ACCN_ID: { in: accnIds } },
+        });
+        res.status(200).json(leases);
+        return;
+      }
+
+      res.status(403).json({ error: "Unauthorized user type" });
+      return;
+    } catch (error) {
+      console.error("Error fetching leases:", error);
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+  },
+);
 
 export default router;

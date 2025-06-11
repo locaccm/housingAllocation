@@ -22,7 +22,8 @@
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "test": "npx prisma generate && jest --coverage --coverageReporters=lcov",
     "dbpull": "npx prisma db pull",
-    "generate": "npx prisma generate"
+    "generate": "npx prisma generate",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

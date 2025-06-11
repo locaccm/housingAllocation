@@ -40,7 +40,7 @@ jobs:
 
           terraform -chdir=terraform import -input=false -no-color \
             module.cloud_run_housingallocation-service.google_cloud_run_service.service \
-            projects/intricate-pad-455413-f7/locations/europe-west1/services/housingallocation-service || true
+            locations/europe-west1/namespaces/intricate-pad-455413-f7/services/housingallocation-service || true
 
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve

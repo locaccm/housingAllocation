@@ -32,7 +32,7 @@ export const requirePermission = (rightName: string) => {
         },
       );
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         next();
       } else {
         res.status(403).json({ error: "Access denied" });

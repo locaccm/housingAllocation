@@ -23,7 +23,9 @@
     "test": "npx prisma generate && jest --coverage --coverageReporters=lcov",
     "dbpull": "npx prisma db pull",
     "generate": "npx prisma generate",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "npm run generate && node dist/index.js"
+
   },
   "repository": {
     "type": "git",

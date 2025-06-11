@@ -25,6 +25,7 @@
     "generate": "npx prisma generate",
     "build": "tsc",
     "start": "npm run generate && node dist/index.js"
+
   },
   "repository": {
     "type": "git",

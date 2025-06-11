@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  USEN_ID          Int             @id @default(autoincrement()) @map("USEN_ID")
+  USEC_URLPP       String?         @map("USEC_URLPP") @db.VarChar(255)
+  USEC_LNAME       String?         @map("USEC_LNAME") @db.VarChar(255)
+  USEC_FNAME       String?         @map("USEC_FNAME") @db.VarChar(255)
+  USEC_TYPE        String?         @map("USEC_TYPE") @db.VarChar(10)
+  USEC_BIO         String?         @map("USEC_BIO")
+  USED_BIRTH       DateTime?       @map("USED_BIRTH") @db.Date
+  USEC_TEL         String?         @map("USEC_TEL") @db.VarChar(15)
+  USEC_ADDRESS     String?         @map("USEC_ADDRESS")
+  USEC_MAIL        String?         @unique @map("USEC_MAIL") @db.VarChar(255)
+  USEC_PASSWORD    String?         @map("USEC_PASSWORD")
+  USEN_INVITE      Int?            @map("USEN_INVITE")
+  accommodations   Accommodation[]
+  events           Event[]
+  leases           Lease[]
+  messagesReceived Message[]       @relation("Receiver")
+  messagesSent     Message[]       @relation("Sender")
+  invitedBy        User?           @relation("UserInvites", fields: [USEN_INVITE], references: [USEN_ID], onUpdate: NoAction, map: "fk_invite_owner")
+  invites          User[]          @relation("UserInvites")
+
+  @@map("USER")
+}
+
+model Accommodation {
+  ACCN_ID        Int      @id @default(autoincrement()) @map("ACCN_ID")
+  ACCC_NAME      String?  @map("ACCC_NAME") @db.VarChar(255)
+  ACCC_TYPE      String?  @map("ACCC_TYPE") @db.VarChar(50)
+  ACCC_DESC      String?  @map("ACCC_DESC")
+  ACCC_ADDRESS   String?  @map("ACCC_ADDRESS")
+  ACCB_AVAILABLE Boolean? @default(true) @map("ACCB_AVAILABLE")
+  USEN_ID        Int?     @map("USEN_ID")
+  owner          User?    @relation(fields: [USEN_ID], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_accommodation_user")
+  events         Event[]
+  leases         Lease[]
+
+  @@map("ACCOMMODATION")
+}
+
+model Event {
+  EVEN_ID       Int            @id @default(autoincrement()) @map("EVEN_ID")
+  EVEC_LIB      String?        @map("EVEC_LIB") @db.VarChar(255)
+  EVED_START    DateTime?      @map("EVED_START") @db.Timestamp(6)
+  EVED_END      DateTime?      @map("EVED_END") @db.Timestamp(6)
+  USEN_ID       Int?           @map("USEN_ID")
+  ACCN_ID       Int?           @map("ACCN_ID")
+  accommodation Accommodation? @relation(fields: [ACCN_ID], references: [ACCN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_event_accommodation")
+  user          User?          @relation(fields: [USEN_ID], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_event_user")
+
+  @@map("EVENT")
+}
+
+model Message {
+  MESN_ID       Int       @id @default(autoincrement()) @map("MESN_ID")
+  MESN_RECEIVER Int?      @map("MESN_RECEIVER")
+  MESN_SENDER   Int?      @map("MESN_SENDER")
+  MESC_CONTENT  String?   @map("MESC_CONTENT")
+  MESD_DATE     DateTime? @default(now()) @map("MESD_DATE") @db.Timestamp(6)
+  MESB_NEW      Boolean?  @default(true) @map("MESB_NEW")
+  receiver      User?     @relation("Receiver", fields: [MESN_RECEIVER], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_message_receiver")
+  sender        User?     @relation("Sender", fields: [MESN_SENDER], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_message_sender")
+
+  @@map("MESSAGE")
+}
+
+model Lease {
+  LEAN_ID       Int            @id @default(autoincrement()) @map("LEAN_ID")
+  LEAD_START    DateTime?      @map("LEAD_START") @db.Date
+  LEAD_END      DateTime?      @map("LEAD_END") @db.Date
+  LEAN_RENT     Decimal?       @map("LEAN_RENT") @db.Decimal(10, 2)
+  LEAN_CHARGES  Decimal?       @map("LEAN_CHARGES") @db.Decimal(10, 2)
+  LEAD_PAYMENT  DateTime?      @map("LEAD_PAYMENT") @db.Date
+  LEAB_ACTIVE   Boolean?       @default(true) @map("LEAB_ACTIVE")
+  USEN_ID       Int?           @map("USEN_ID")
+  ACCN_ID       Int?           @map("ACCN_ID")
+  accommodation Accommodation? @relation(fields: [ACCN_ID], references: [ACCN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_lease_accommodation")
+  user          User?          @relation(fields: [USEN_ID], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_lease_user")
+
+  @@map("LEASE")
+}

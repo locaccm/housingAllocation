@@ -7,10 +7,12 @@ import cors from "cors";
 const app = express();
 const urlFront = process.env.URL_FRONT ?? "http://localhost:5173";
 
-app.use(cors({
+app.use(
+  cors({
     origin: urlFront,
     credentials: true,
-})); // NOSONAR
+  }),
+); // NOSONAR
 
 app.disable("x-powered-by");
 

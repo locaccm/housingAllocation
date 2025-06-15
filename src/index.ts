@@ -5,8 +5,14 @@ import swaggerSpec from "./swagger";
 import cors from "cors";
 
 const app = express();
+const urlFront = process.env.URL_FRONT ?? "http://localhost:5173";
 
-app.use(cors()); // NOSONAR
+app.use(
+  cors({
+    origin: urlFront,
+    credentials: true,
+  }),
+); // NOSONAR
 
 app.disable("x-powered-by");
 

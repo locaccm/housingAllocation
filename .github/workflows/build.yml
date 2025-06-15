@@ -83,6 +83,7 @@ jobs:
           docker build \
             --build-arg DATABASE_URL="${{ secrets.DATABASE_URL_PRE_PROD }}" \
             --build-arg AUTH_SERVICE_URL="${{ secrets.AUTH_SERVICE_URL }}" \
+            --build-arg URL_FRONT="${{ secrets.URL_FRONT }}" \
             -t housingallocation-service:latest .
 
       - name: Tag & Push to Artifact Registry

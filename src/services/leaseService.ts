@@ -32,10 +32,6 @@ export const createLease = async (data: Partial<LeaseData>) => {
     throw new Error("Accommodation not found");
   }
 
-  if (accommodation.USEN_ID !== USEN_ID) {
-    throw new Error("You are not the owner of this accommodation");
-  }
-
   const hasActiveLease = await prisma.lease.findFirst({
     where: {
       ACCN_ID,

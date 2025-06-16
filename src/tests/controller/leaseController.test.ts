@@ -41,17 +41,6 @@ describe("Lease Service", () => {
     ).rejects.toThrow("Accommodation not found");
   });
 
-  it("should throw if user is not owner of accommodation", async () => {
-    (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
-      USEN_ID: 99,
-      leases: [],
-      owner: {},
-    });
-    await expect(
-      leaseService.createLease({ USEN_ID: 1, ACCN_ID: 1 }),
-    ).rejects.toThrow("You are not the owner of this accommodation");
-  });
-
   it("should throw if accommodation already has active lease", async () => {
     (prisma.accommodation.findUnique as jest.Mock).mockResolvedValue({
       USEN_ID: 1,

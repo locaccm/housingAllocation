@@ -12,7 +12,7 @@ export const requirePermission = (rightName: string) => {
     if (!authServiceUrl) {
       return next();
     }
-    const authHeader = req.headers["authorization"];
+    const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res

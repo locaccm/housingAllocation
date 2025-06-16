@@ -10,6 +10,9 @@ const urlFront = process.env.URL_FRONT ?? "http://localhost:5173";
 app.use(
   cors({
     origin: urlFront,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type, Authorization, userId"],
     credentials: true,
   }),
 ); // NOSONAR
